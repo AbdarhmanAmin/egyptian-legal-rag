@@ -1,0 +1,19 @@
+schema: '2.0'
+stages:
+  build_corpus:
+    cmd: python -m src.ingestion.build_corpus --pdf "data/raw/القانون المدني 
+      المصري.pdf" --out "data/processed/egyptian_civil_code.json"
+    deps:
+    - path: data/raw/القانون المدني المصري.pdf
+      hash: md5
+      md5: 5086ef5f16f15d856278db943e58e948
+      size: 2599703
+    - path: src/ingestion/build_corpus.py
+      hash: md5
+      md5: ec110ae60e42b218fe403e6e0cec1246
+      size: 10785
+    outs:
+    - path: data/processed/egyptian_civil_code.json
+      hash: md5
+      md5: 4a4752e90e5de62b37974747f6ee25fc
+      size: 2308767
