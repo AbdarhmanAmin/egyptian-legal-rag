@@ -1,0 +1,8 @@
+stages:
+  build_corpus:
+    cmd: python -m src.ingestion.build_corpus --pdf "data/raw/القانون المدني المصري.pdf" --out "data/processed/egyptian_civil_code.json"
+    deps:
+      - data/raw/القانون المدني المصري.pdf
+      - src/ingestion/build_corpus.py
+    outs:
+      - data/processed/egyptian_civil_code.json
