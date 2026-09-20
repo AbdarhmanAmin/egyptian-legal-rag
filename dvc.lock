@@ -17,3 +17,42 @@ stages:
       hash: md5
       md5: 4a4752e90e5de62b37974747f6ee25fc
       size: 2308767
+  chunking:
+    cmd: python -m src.rag.chunking
+    deps:
+    - path: data/processed/egyptian_civil_code.json
+      hash: md5
+      md5: 4a4752e90e5de62b37974747f6ee25fc
+      size: 2308767
+    - path: src/rag/chunking.py
+      hash: md5
+      md5: 80ecc7993cac817a3a6f374b8a0a0605
+      size: 3305
+    params:
+      params.yaml:
+        processed_data_path: data/processed/chunks_article_aware.json
+        raw_data_path: data/processed/egyptian_civil_code.json
+    outs:
+    - path: data/processed/chunks_article_aware.json
+      hash: md5
+      md5: db1f42a55065db691e7b27e1f4cdb6f6
+      size: 2908845
+  indexing:
+    cmd: python -m src.rag.indexing
+    deps:
+    - path: data/processed/chunks_article_aware.json
+      hash: md5
+      md5: db1f42a55065db691e7b27e1f4cdb6f6
+      size: 2908845
+    - path: src/rag/indexing.py
+      hash: md5
+      md5: 69b80dacd9e6557a210bc34aee41a789
+      size: 3420
+    params:
+      params.yaml:
+        embedding_model: BAAI/bge-m3
+        mlflow.experiment_name: egyptian-legal-rag
+        mlflow.tracking_uri: sqlite:///mlflow.db
+        processed_data_path: data/processed/chunks_article_aware.json
+        qdrant.collection_name: egyptian_civil_code
+        qdrant.path: ./qdrant_storage
