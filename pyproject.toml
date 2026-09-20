@@ -15,6 +15,9 @@ dependencies = [
     "sentence-transformers",
     "structlog",
     "dvc>=3.0.0"
+    "mlflow",
+    "qdrant-client",
+    "matplotlib"
 ]
 
 [project.optional-dependencies]

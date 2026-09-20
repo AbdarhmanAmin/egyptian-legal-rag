@@ -1,0 +1,13 @@
+raw_data_path: "data/processed/egyptian_civil_code.json"
+processed_data_path: "data/processed/chunks_article_aware.json"
+
+
+embedding_model: "BAAI/bge-m3"
+
+qdrant:
+  path: "./qdrant_storage"
+  collection_name: "egyptian_civil_code"
+
+mlflow:
+  tracking_uri: "sqlite:///mlflow.db"
+  experiment_name: "egyptian-legal-rag"
