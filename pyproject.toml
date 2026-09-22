@@ -14,10 +14,14 @@ dependencies = [
     "chromadb",
     "sentence-transformers",
     "structlog",
-    "dvc>=3.0.0"
+    "dvc>=3.0.0",
     "mlflow",
     "qdrant-client",
-    "matplotlib"
+    "matplotlib",
+    "groq>=0.18.0",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.1",
+    "fastembed>=0.2.0"
 ]
 
 [project.optional-dependencies]
