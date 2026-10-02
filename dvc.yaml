@@ -1,6 +1,6 @@
 stages:
   build_corpus:
-    cmd: python -m src.ingestion.build_corpus --pdf "data/raw/القانون المدني المصري.pdf" --out "data/processed/egyptian_civil_code.json"
+    cmd: python -m src.ingestion.build_corpus --pdf "data/raw/القانون المدني المصري.pdf" --out data/processed/egyptian_civil_code.json
     deps:
       - src/ingestion/build_corpus.py
       - data/raw/القانون المدني المصري.pdf
@@ -13,8 +13,12 @@ stages:
       - src/rag/chunking.py
       - data/processed/egyptian_civil_code.json
     params:
-      - raw_data_path
-      - processed_data_path
+      - params.yaml:
+          - raw_data_path
+          - processed_data_path
+          - embedding_model
+          - mlflow.tracking_uri
+          - mlflow.experiment_name
     outs:
       - data/processed/chunks_article_aware.json
 
@@ -24,9 +28,9 @@ stages:
       - src/rag/indexing.py
       - data/processed/chunks_article_aware.json
     params:
-      - processed_data_path
-      - embedding_model
-      - qdrant.path
-      - qdrant.collection_name
-      - mlflow.tracking_uri
-      - mlflow.experiment_name
+      - params.yaml:
+          - embedding_model
+          - qdrant.path
+          - qdrant.collection_name
+    outs:
+      - qdrant_storage

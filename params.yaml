@@ -13,7 +13,7 @@ retriever:
 
 mlflow:
   tracking_uri: "sqlite:///mlflow.db"
-  experiment_name: "egyptian-legal-rag"
+  experiment_name: "egyptian-legal-rag-project2"
 
 generator:
   model_name: "openai/gpt-oss-120b" 

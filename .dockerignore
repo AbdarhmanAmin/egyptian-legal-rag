@@ -1,10 +1,12 @@
+.git
 .venv
 venv
 __pycache__
 *.pyc
-.git
-.gitignore
+.env
 .dvc
-data/
-models/
+data/raw
+mlruns
+mlflow.db
 .pytest_cache
+reports

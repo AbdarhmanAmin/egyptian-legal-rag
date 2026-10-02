@@ -1,66 +1,35 @@
+"""Load the local embedding model and retrieve matching Civil Code articles."""
+
 from functools import lru_cache
-import os
-from dotenv import load_dotenv
-from fastembed import SparseTextEmbedding
-from qdrant_client import QdrantClient
-from qdrant_client.models import Fusion, FusionQuery, Prefetch, SparseVector
-from sentence_transformers import SentenceTransformer
+from pathlib import Path
+
+import torch
 import yaml
-
-load_dotenv()
-
-
-def load_params():
-  with open("params.yaml", "r", encoding="utf-8") as f:
-    return yaml.safe_load(f)
+from qdrant_client import QdrantClient
+from sentence_transformers import SentenceTransformer
 
 
-# تحميل الموديلات والعميل مرة واحدة فقط في الذاكرة Caching
+def load_params() -> dict:
+    return yaml.safe_load(Path("params.yaml").read_text(encoding="utf-8"))
+
+
 @lru_cache(maxsize=1)
 def get_retriever_resources():
-  """تحميل نماذج الـ Embeddings والاتصال بـ Qdrant مرة واحدة فقط عند بدء التشغيل."""
-  params = load_params()
-  qdrant_path = params.get("qdrant", {}).get("path", "./qdrant_storage")
-  embedding_model_name = params.get("embedding_model", "BAAI/bge-m3")
-
-  print("⚡ Loading models into memory (Cold Start)...")
-  client = QdrantClient(path=qdrant_path)
-  dense_model = SentenceTransformer(embedding_model_name)
-  sparse_model = SparseTextEmbedding(model_name="Qdrant/bm25")
-
-  return client, dense_model, sparse_model, params
+    params = load_params()
+    client = QdrantClient(path=params["qdrant"]["path"])
+    torch.set_num_threads(min(4, torch.get_num_threads()))
+    model = SentenceTransformer(params["embedding_model"], local_files_only=True)
+    model.max_seq_length = 512
+    return client, model, params
 
 
-def retrieve_relevant_docs(query: str, top_k: int = None) -> list:
-  """استرجاع المواد باستخدام الموديلات المحملة مسبقاً."""
-  client, dense_model, sparse_model, params = get_retriever_resources()
-
-  if top_k is None:
-    top_k = params.get("retriever", {}).get("top_k", 3)
-
-  collection_name = params.get("qdrant", {}).get(
-      "collection_name", "egyptian_civil_code"
-  )
-
-  # تحويل الاستعلام بسرعة عالية لأن الموديل جاهز بالـ RAM
-  dense_query = dense_model.encode(query).tolist()
-  sparse_query = list(sparse_model.embed([query]))[0]
-
-  response = client.query_points(
-      collection_name=collection_name,
-      prefetch=[
-          Prefetch(using="text-dense", query=dense_query, limit=top_k),
-          Prefetch(
-              using="text-sparse",
-              query=SparseVector(
-                  indices=sparse_query.indices.tolist(),
-                  values=sparse_query.values.tolist(),
-              ),
-              limit=top_k,
-          ),
-      ],
-      query=FusionQuery(fusion=Fusion.RRF),
-      limit=top_k,
-  )
-
-  return response.points
+def retrieve_relevant_docs(query: str, top_k: int | None = None) -> list:
+    client, model, params = get_retriever_resources()
+    collection = params["qdrant"]["collection_name"]
+    limit = top_k or params.get("retriever", {}).get("top_k", 5)
+    result = client.query_points(
+        collection_name=collection,
+        query=model.encode(query).tolist(),
+        limit=limit,
+    )
+    return result.points

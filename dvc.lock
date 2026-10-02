@@ -2,7 +2,7 @@ schema: '2.0'
 stages:
   build_corpus:
     cmd: python -m src.ingestion.build_corpus --pdf "data/raw/القانون المدني 
-      المصري.pdf" --out "data/processed/egyptian_civil_code.json"
+      المصري.pdf" --out data/processed/egyptian_civil_code.json
     deps:
     - path: data/raw/القانون المدني المصري.pdf
       hash: md5
@@ -10,49 +10,55 @@ stages:
       size: 2599703
     - path: src/ingestion/build_corpus.py
       hash: md5
-      md5: ec110ae60e42b218fe403e6e0cec1246
-      size: 10785
+      md5: c807961ed14b3802057c1957f1243910
+      size: 6038
     outs:
     - path: data/processed/egyptian_civil_code.json
       hash: md5
-      md5: 4a4752e90e5de62b37974747f6ee25fc
-      size: 2308767
+      md5: 5d1352d189ca7083d3bf3aebd5ecfcde
+      size: 1179649
   chunking:
     cmd: python -m src.rag.chunking
     deps:
     - path: data/processed/egyptian_civil_code.json
       hash: md5
-      md5: 4a4752e90e5de62b37974747f6ee25fc
-      size: 2308767
+      md5: 5d1352d189ca7083d3bf3aebd5ecfcde
+      size: 1179649
     - path: src/rag/chunking.py
       hash: md5
-      md5: 80ecc7993cac817a3a6f374b8a0a0605
-      size: 3305
+      md5: 3b16e09d06e15d32e44978922dbefc20
+      size: 2234
     params:
       params.yaml:
+        embedding_model: BAAI/bge-m3
+        mlflow.experiment_name: egyptian-legal-rag-project2
+        mlflow.tracking_uri: sqlite:///mlflow.db
         processed_data_path: data/processed/chunks_article_aware.json
         raw_data_path: data/processed/egyptian_civil_code.json
     outs:
     - path: data/processed/chunks_article_aware.json
       hash: md5
-      md5: db1f42a55065db691e7b27e1f4cdb6f6
-      size: 2908845
+      md5: 6ff1595d58630137397d8b62cb24a249
+      size: 1738900
   indexing:
     cmd: python -m src.rag.indexing
     deps:
     - path: data/processed/chunks_article_aware.json
       hash: md5
-      md5: db1f42a55065db691e7b27e1f4cdb6f6
-      size: 2908845
+      md5: 6ff1595d58630137397d8b62cb24a249
+      size: 1738900
     - path: src/rag/indexing.py
       hash: md5
-      md5: 69b80dacd9e6557a210bc34aee41a789
-      size: 3420
+      md5: b904037d2ab5a95137259f4b8e2fa329
+      size: 1652
     params:
       params.yaml:
         embedding_model: BAAI/bge-m3
-        mlflow.experiment_name: egyptian-legal-rag
-        mlflow.tracking_uri: sqlite:///mlflow.db
-        processed_data_path: data/processed/chunks_article_aware.json
         qdrant.collection_name: egyptian_civil_code
         qdrant.path: ./qdrant_storage
+    outs:
+    - path: qdrant_storage
+      hash: md5
+      md5: 3e5a10bde049011681122c15f21482ad.dir
+      size: 12689974
+      nfiles: 3

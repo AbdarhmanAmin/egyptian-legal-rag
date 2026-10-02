@@ -1,23 +1,36 @@
-from qdrant_client import QdrantClient
-from sentence_transformers import SentenceTransformer
+from types import SimpleNamespace
 
-# 1. الاتصال بالفولدر المحلي
-client = QdrantClient(path="./qdrant_storage")
-model = SentenceTransformer("BAAI/bge-m3")
+import numpy as np
 
-# 2. سؤال قانوني تجريبي
-query = "ما هي التزامات البائع في عقد البيع؟"
-query_vector = model.encode(query).tolist()
+from src.rag import retriever
 
-# 3. البحث باستخدام query_points (Modern Qdrant API)
-response = client.query_points(
-    collection_name="egyptian_civil_code", query=query_vector, limit=3
-)
 
-print("\n=== نتائج البحث من Qdrant المحلي ===")
-for r in response.points:
-  print(
-      f"\n- المادة ({r.payload.get('article_number')}) | Score:"
-      f" {r.score:.4f}"
-  )
-  print(f"  النص: {r.payload.get('text_ar')}")
+def test_retriever_embeds_query_and_returns_qdrant_points(monkeypatch):
+    expected = [SimpleNamespace(payload={"article_number": 147})]
+
+    class FakeModel:
+        def encode(self, query):
+            assert query == "ما أثر العقد؟"
+            return np.array([0.1, 0.2])
+
+    class FakeClient:
+        def query_points(self, **kwargs):
+            assert kwargs["collection_name"] == "civil-code"
+            assert kwargs["query"] == [0.1, 0.2]
+            assert kwargs["limit"] == 3
+            return SimpleNamespace(points=expected)
+
+    monkeypatch.setattr(
+        retriever,
+        "get_retriever_resources",
+        lambda: (
+            FakeClient(),
+            FakeModel(),
+            {
+                "qdrant": {"collection_name": "civil-code"},
+                "retriever": {"top_k": 3},
+            },
+        ),
+    )
+
+    assert retriever.retrieve_relevant_docs("ما أثر العقد؟") == expected

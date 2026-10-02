@@ -1,103 +1,48 @@
+"""Build the local Qdrant index from article chunks."""
+
 import json
 from pathlib import Path
-from fastembed import SparseTextEmbedding
-import mlflow
-from qdrant_client import QdrantClient
-from qdrant_client.models import (
-    Distance,
-    PointStruct,
-    SparseVector,
-    SparseVectorParams,
-    VectorParams,
-)
-from sentence_transformers import SentenceTransformer
+
+import torch
 import yaml
+from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, PointStruct, VectorParams
+from sentence_transformers import SentenceTransformer
 
 
-def load_params():
-  with open("params.yaml", "r", encoding="utf-8") as f:
-    return yaml.safe_load(f)
+def run_indexing() -> None:
+    params = yaml.safe_load(Path("params.yaml").read_text(encoding="utf-8"))
+    chunks_path = Path(params["processed_data_path"])
+    chunks = json.loads(chunks_path.read_text(encoding="utf-8"))
+    if not chunks:
+        raise ValueError(f"No chunks found in {chunks_path}")
 
-
-def run_indexing():
-  params = load_params()
-
-  processed_data_path = Path(params["processed_data_path"])
-  if not processed_data_path.exists():
-    raise FileNotFoundError(
-        f"Processed data file not found: {processed_data_path}"
+    model_path = params["embedding_model"]
+    torch.set_num_threads(min(4, torch.get_num_threads()))
+    model = SentenceTransformer(model_path, local_files_only=True)
+    model.max_seq_length = 512
+    vectors = model.encode(
+        [chunk["text"] for chunk in chunks], batch_size=32, show_progress_bar=True
     )
 
-  with open(processed_data_path, "r", encoding="utf-8") as f:
-    chunks = json.load(f)
-
-  # 1. تحميل نماذج الـ Embeddings
-  print("Loading Dense (SentenceTransformer) and Sparse (BM25) models...")
-  model_name = params.get("embedding_model", "BAAI/bge-m3")
-  dense_model = SentenceTransformer(model_name)
-
-  if hasattr(dense_model, "get_embedding_dimension"):
-    vector_size = dense_model.get_embedding_dimension()
-  else:
-    vector_size = dense_model.get_sentence_embedding_dimension()
-
-  sparse_model = SparseTextEmbedding(model_name="Qdrant/bm25")
-
-  # 2. إعداد Qdrant Client
-  qdrant_path = params.get("qdrant", {}).get("path", "./qdrant_storage")
-  collection_name = params.get("qdrant", {}).get(
-      "collection_name", "egyptian_civil_code"
-  )
-  client = QdrantClient(path=qdrant_path)
-
-  # إعادة إنشاء الـ Collection بإعدادات الـ Hybrid Search
-  if client.collection_exists(collection_name):
-    print(f"Deleting existing collection '{collection_name}'...")
-    client.delete_collection(collection_name)
-
-  print(
-      f"Creating Qdrant collection: {collection_name} (Dense Dim:"
-      f" {vector_size})..."
-  )
-  client.create_collection(
-      collection_name=collection_name,
-      vectors_config={
-          "text-dense": VectorParams(size=vector_size, distance=Distance.COSINE)
-      },
-      sparse_vectors_config={"text-sparse": SparseVectorParams()},
-  )
-
-  # 3. استخراج الـ Vectors وتخزينها
-  print(f"Indexing {len(chunks)} chunks using Hybrid Vectors...")
-  texts = [chunk["text"] for chunk in chunks]
-
-  # توليد المتجهات
-  dense_embeddings = dense_model.encode(texts, show_progress_bar=True)
-  sparse_embeddings = list(sparse_model.embed(texts))
-
-  points = []
-  for idx, (chunk, dense_emb, sparse_emb) in enumerate(
-      zip(chunks, dense_embeddings, sparse_embeddings)
-  ):
-    point = PointStruct(
-        id=chunk["id"],
-        vector={
-            "text-dense": dense_emb.tolist(),
-            "text-sparse": SparseVector(
-                indices=sparse_emb.indices.tolist(),
-                values=sparse_emb.values.tolist(),
-            ),
-        },
-        payload=chunk["metadata"],
+    qdrant = params["qdrant"]
+    client = QdrantClient(path=qdrant["path"])
+    collection = qdrant["collection_name"]
+    if client.collection_exists(collection):
+        client.delete_collection(collection)
+    client.create_collection(
+        collection_name=collection,
+        vectors_config=VectorParams(
+            size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE
+        ),
     )
-    points.append(point)
-
-  # Upsert إلى Qdrant
-  client.upsert(collection_name=collection_name, points=points)
-  print(
-      f"Hybrid Indexing completed successfully! {len(points)} points indexed."
-  )
+    points = [
+        PointStruct(id=chunk["id"], vector=vector.tolist(), payload=chunk["metadata"])
+        for chunk, vector in zip(chunks, vectors)
+    ]
+    client.upsert(collection_name=collection, points=points)
+    print(f"Indexed {len(points)} articles in '{collection}'")
 
 
 if __name__ == "__main__":
-  run_indexing()
+    run_indexing()

@@ -1,23 +1,15 @@
-version: '3.8'
-
 services:
   rag-api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: egyptian_code_rag_api
+    build: .
     ports:
       - "8000:8000"
-    env_file:
-      - .env
+    env_file: .env
     volumes:
       - ./qdrant_storage:/app/qdrant_storage
-      # حفظ أوزان موديل الـ Embeddings محلياً حتى لا يعيد التحميل كل مرة
-      - ~/.cache/huggingface:/root/.cache/huggingface
-      - ~/.cache/fastembed:/root/.cache/fastembed
+      - "${USERPROFILE}/.cache/huggingface:/root/.cache/huggingface:ro"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
