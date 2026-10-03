@@ -4,7 +4,7 @@
 
 Mizan is a small retrieval-augmented generation (RAG) application for asking questions about the Egyptian Civil Code in Arabic or English. It retrieves relevant code articles from a local Qdrant index, sends the question and retrieved context to the configured Groq model, and returns an answer with source references. The web interface and API are served together by FastAPI.
 
-> This is a learning and research tool, not legal advice. Check the cited legal text and consult a qualified lawyer for decisions about a real case.
+
 
 ## Quick start
 
