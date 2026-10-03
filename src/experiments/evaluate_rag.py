@@ -100,9 +100,7 @@ class LegalRAGModel(mlflow.pyfunc.PythonModel):
 
 def load_evaluation_data() -> tuple[list[dict], list[dict]]:
     params = yaml.safe_load(Path("params.yaml").read_text(encoding="utf-8"))
-    articles = json.loads(
-        Path(params["raw_data_path"]).read_text(encoding="utf-8")
-    )
+    articles = json.loads(Path(params["raw_data_path"]).read_text(encoding="utf-8"))
     questions = json.loads(
         Path("data/evaluation/questions.json").read_text(encoding="utf-8")
     )
@@ -156,8 +154,7 @@ def load_completed_result(
         or report.get("evaluation_model") != model_name
         or report.get("evaluation_prompt_version") != EVALUATION_PROMPT_VERSION
         or report.get("evaluation_max_tokens") != max_tokens
-        or report.get("answer_relevancy_strictness")
-        != ANSWER_RELEVANCY_STRICTNESS
+        or report.get("answer_relevancy_strictness") != ANSWER_RELEVANCY_STRICTNESS
         or report.get("top_k") != top_k
         or [row.get("question") for row in report.get("answers", [])]
         != expected_questions
@@ -177,8 +174,7 @@ def load_completed_result(
             and params.get("data_version") == data_version
             and params.get("generation_model") == model_name
             and params.get("evaluation_model") == model_name
-            and params.get("evaluation_prompt_version")
-            == EVALUATION_PROMPT_VERSION
+            and params.get("evaluation_prompt_version") == EVALUATION_PROMPT_VERSION
             and params.get("evaluation_max_tokens") == str(max_tokens)
             and params.get("answer_relevancy_strictness")
             == str(ANSWER_RELEVANCY_STRICTNESS)
@@ -305,13 +301,9 @@ def prepare_evaluation_rows(
 
             number = int(match.group(1))
             article = articles_by_number.get(number, {})
-            is_repealed = bool(
-                article.get("is_repealed", False) or 54 <= number <= 80
-            )
+            is_repealed = bool(article.get("is_repealed", False) or 54 <= number <= 80)
             status = "ملغاة" if is_repealed else "نافذة"
-            citation = article.get(
-                "citation", f"Egyptian Civil Code, Article {number}"
-            )
+            citation = article.get("citation", f"Egyptian Civil Code, Article {number}")
             blocks.append(f"{citation} ({status})\n{raw_context}")
             if number not in retrieved_numbers:
                 retrieved_numbers.append(number)
@@ -380,9 +372,7 @@ def run_experiments() -> None:
 
     model_name = params["embedding_model"]
     top_k = int(params.get("retriever", {}).get("top_k", 7))
-    source_hash = hashlib.sha256(
-        Path(params["raw_data_path"]).read_bytes()
-    ).hexdigest()
+    source_hash = hashlib.sha256(Path(params["raw_data_path"]).read_bytes()).hexdigest()
     try:
         embedding_model = SentenceTransformer(model_name, local_files_only=True)
     except TypeError:
@@ -401,9 +391,7 @@ def run_experiments() -> None:
         )
     )
     evaluator_embeddings = LocalSentenceTransformerEmbeddings(embedding_model)
-    evaluation_max_tokens = int(
-        params.get("evaluation", {}).get("max_tokens", 500)
-    )
+    evaluation_max_tokens = int(params.get("evaluation", {}).get("max_tokens", 500))
     faithfulness.statement_generator_prompt.instruction = (
         "استخرج الادعاءات القانونية الموجودة في الإجابة فقط. "
         "قسّم الإجابة إلى عبارات واقعية مستقلة ومختصرة، دون إضافة معلومات. "
@@ -586,9 +574,7 @@ def run_experiments() -> None:
                 embeddings=evaluator_embeddings,
                 run_config=RunConfig(
                     timeout=120,
-                    max_retries=int(
-                        params.get("evaluation", {}).get("max_retries", 2)
-                    ),
+                    max_retries=int(params.get("evaluation", {}).get("max_retries", 2)),
                     max_wait=8,
                     max_workers=1,
                 ),
@@ -635,9 +621,7 @@ def run_experiments() -> None:
                             metric_name: per_metric_scores[metric_name][index]
                             for metric_name in RAGAS_METRIC_NAMES
                         },
-                        "expected_article_retrieved": row[
-                            "expected_article_retrieved"
-                        ],
+                        "expected_article_retrieved": row["expected_article_retrieved"],
                     }
                     for index, row in enumerate(answer_rows)
                 ],
@@ -707,9 +691,7 @@ def run_experiments() -> None:
                 "evaluation_questions": len(questions),
             }
         )
-        mlflow.log_metrics(
-            {"faithfulness": best["faithfulness"]}
-        )
+        mlflow.log_metrics({"faithfulness": best["faithfulness"]})
         mlflow.log_artifact(str(summary_path), artifact_path="evaluation")
         model_info = mlflow.pyfunc.log_model(
             artifact_path="model",

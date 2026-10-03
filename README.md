@@ -135,7 +135,7 @@ This installs the service, DVC pipeline, MLflow/RAGAS evaluation tools, and deve
 
 `dvc dag` shows the dependency graph: source PDF → article corpus → article chunks → Qdrant index. `dvc repro` runs stale stages in order and records hashes and parameters in `dvc.lock`. Run `dvc repro` a second time without changing inputs to demonstrate that DVC reuses cached stage outputs. `dvc status` shows changed or missing dependencies and outputs.
 
-The source PDF has a DVC pointer file, but this repository has no shared DVC remote configured. The data and local cache are therefore not available to a clean clone automatically; `dvc pull` and remote reproducibility require a remote and credentials to be set up first. For now, run these commands on the machine that has the source PDF and local DVC cache. The corpus and chunking stages now write DVC metrics to `reports/corpus_metrics.json` and `reports/chunking_metrics.json`; use the commands below to inspect them.
+The source PDF has a DVC pointer file, but this project does not currently have a shared DVC remote. A clean clone cannot retrieve the DVC-managed files until a remote is configured and its data is pushed. The corpus and chunking stages write DVC metrics to `reports/corpus_metrics.json` and `reports/chunking_metrics.json`; use the commands below to inspect them.
 
 ### 4. Start the UI and API
 
@@ -225,7 +225,7 @@ To compare metrics with a previous committed version, commit the code, `dvc.yaml
 .\.venv311\Scripts\dvc.exe metrics diff HEAD^
 ```
 
-`HEAD^` is the previous Git commit; on the first commit, use a commit hash that contains the earlier metrics instead. A shared DVC remote is still not configured. To share data and pipeline outputs with a clean clone, choose a storage provider (such as Google Drive, S3, or Azure), configure its DVC remote and credentials locally, then run `dvc push`. Do not put remote credentials in Git.
+`HEAD^` is the previous Git commit; on the first commit, use a commit hash that contains the earlier metrics instead. No shared DVC remote is configured, so these pipeline files and metrics remain local. Setting up a remote is optional; it can be added later if you need to share data with another machine or collaborator.
 
 ## CI/CD: how to run and view it
 

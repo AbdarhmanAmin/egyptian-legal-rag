@@ -17,7 +17,9 @@ app = FastAPI(title="Egyptian Civil Code Q&A", version="1.0.0")
 async def prevent_stale_frontend_cache(request, call_next):
     response = await call_next(request)
     if request.url.path in {"/", "/index.html", "/styles.css", "/app.js"}:
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, max-age=0"
+        )
     return response
 
 

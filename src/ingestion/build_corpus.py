@@ -153,12 +153,16 @@ def main() -> None:
         "article_count": len(corpus),
         "active_article_count": len(active_articles),
         "repealed_article_count": len(corpus) - len(active_articles),
-        "arabic_text_coverage": round(
-            sum(bool(article["text_ar"]) for article in corpus) / len(corpus), 4
-        ) if corpus else 0.0,
-        "english_text_coverage": round(
-            sum(bool(article["text_en"]) for article in corpus) / len(corpus), 4
-        ) if corpus else 0.0,
+        "arabic_text_coverage": (
+            round(sum(bool(article["text_ar"]) for article in corpus) / len(corpus), 4)
+            if corpus
+            else 0.0
+        ),
+        "english_text_coverage": (
+            round(sum(bool(article["text_en"]) for article in corpus) / len(corpus), 4)
+            if corpus
+            else 0.0
+        ),
     }
     metrics_path = Path("reports/corpus_metrics.json")
     metrics_path.parent.mkdir(parents=True, exist_ok=True)

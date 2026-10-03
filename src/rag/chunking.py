@@ -59,9 +59,7 @@ def build_article_chunks(
 
         prefix = f"المادة {number}: "
         body_size = chunk_size - len(prefix)
-        text_parts = split_article_text(
-            text_ar, body_size, min(overlap, body_size - 1)
-        )
+        text_parts = split_article_text(text_ar, body_size, min(overlap, body_size - 1))
         for index, text in enumerate(text_parts):
             chunk_text = f"{prefix}{text}"
             chunk_id = (
@@ -123,9 +121,9 @@ def run_chunking() -> None:
         "active_article_count": len(articles) - repealed_article_count,
         "chunk_size_characters": chunk_size,
         "overlap_characters": overlap,
-        "average_chunks_per_article": round(len(chunks) / len(articles), 3)
-        if articles
-        else 0.0,
+        "average_chunks_per_article": (
+            round(len(chunks) / len(articles), 3) if articles else 0.0
+        ),
     }
     metrics_path = Path("reports/chunking_metrics.json")
     metrics_path.parent.mkdir(parents=True, exist_ok=True)
