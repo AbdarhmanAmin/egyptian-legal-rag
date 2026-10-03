@@ -211,7 +211,7 @@ def collect_rag_results(
     for question_index, row in enumerate(questions, start=1):
         query_vector = query_vectors[question_index - 1]
 
-        def retrieve(_: str, limit: int | None) -> list:
+        def retrieve(_: str, limit: int | None, query_vector=query_vector) -> list:
             result = client.query_points(
                 collection_name=collection_name,
                 query=query_vector,
