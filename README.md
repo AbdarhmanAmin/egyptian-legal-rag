@@ -232,14 +232,14 @@ To compare metrics with a previous committed version, commit the code, `dvc.yaml
 `.github/workflows/ci-cd.yml` is triggered on pull requests to `main`, pushes to `main`, and manual workflow dispatch:
 
 - The `checks` job installs the app and development dependencies, runs Ruff and Black, then tests the API and retrieval behavior with the model/vector search mocked. It saves a coverage report as a workflow artifact.
-- After checks pass, the `image` job builds the Docker image. Pull requests build without publishing. A push to `main` publishes commit-SHA and `latest` tags to Docker Hub.
+- After checks pass, the `image` job builds the Docker image. Pull requests build without publishing. A push to `main` publishes commit-SHA and `latest` tags to Docker Hub when the Docker Hub credentials are configured; without them, the job builds the image and skips publishing cleanly.
 
 To enable image publishing, create a Docker Hub access token and configure these repository settings in GitHub under **Settings → Secrets and variables → Actions**:
 
 - Repository variable `DOCKERHUB_USERNAME` — your Docker Hub username.
 - Repository secret `DOCKERHUB_TOKEN` — a Docker Hub access token with permission to push the image.
 
-Push the workflow to GitHub, open **Actions**, and select **CI and image delivery** to see live job logs. A pull request should show lint, tests and image build. A successful merge/push to `main` should also show Docker Hub login and image publishing. Require the workflow check in branch protection under **Settings → Branches** if you want GitHub to block merges when checks fail.
+Push the workflow to GitHub, open **Actions**, and select **CI and image delivery** to see live job logs. A pull request should show lint, tests and image build. A successful merge/push to `main` should also show Docker Hub login and image publishing if credentials are configured. Require the workflow check in branch protection under **Settings → Branches** if you want GitHub to block merges when checks fail.
 
 This workflow does not run the RAGAS experiment or full DVC pipeline in CI: those need Groq API calls, local model files, and data that is not downloadable from a shared DVC remote yet. The local RAGAS command below enforces the faithfulness threshold before model promotion. CI publishes an image but does not deploy it to a live production service.
 
