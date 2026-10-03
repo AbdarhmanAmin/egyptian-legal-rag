@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f5f4ef" />
+    <meta name="theme-color" content="#faf9fb" />
     <meta name="description" content="Ask questions about the Egyptian Civil Code and explore cited legal articles." />
     <title>Mizan — Egyptian Legal Assistant</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css?v=20261003-purple" />
   </head>
   <body>
     <div class="app-shell">
@@ -16,34 +16,34 @@
           <span><strong>Mizan</strong><small>LEGAL INTELLIGENCE</small></span>
         </a>
         <div class="side-rule"></div>
-        <button id="new-chat" class="new-chat" type="button"><span>＋</span> New conversation</button>
+        <button id="new-chat" class="new-chat" type="button"><span class="new-chat-icon">＋</span><span data-i18n="newChat">New conversation</span></button>
         <div class="sidebar-note">
           <span class="note-icon" aria-hidden="true">✳</span>
-          <p>Grounded in the Egyptian Civil Code, with article references to help you verify each answer.</p>
+          <p data-i18n="sidebarNote">Grounded in the Egyptian Civil Code, with article references to help you verify each answer.</p>
         </div>
         <div class="sidebar-bottom">
           <div class="status-line"><span id="status-dot" class="status-dot"></span><span id="status-text">Connecting to your local library…</span></div>
-          <p class="privacy-note">Your questions are sent to the configured answer provider to generate a response.</p>
+          <p class="privacy-note" data-i18n="privacy">Your questions are sent to the configured answer provider to generate a response.</p>
         </div>
       </aside>
 
       <main class="main-panel">
         <header class="topbar">
           <div class="mobile-brand"><span class="brand-mark">م</span><strong>Mizan</strong></div>
-          <span class="scope-pill"><span class="scope-dot"></span> EGYPTIAN CIVIL CODE</span>
-          <a class="docs-link" href="/docs" target="_blank" rel="noreferrer">API docs <span aria-hidden="true">↗</span></a>
+          <span class="scope-pill"><span class="scope-dot"></span> <span data-i18n="scope">EGYPTIAN CIVIL CODE</span></span>
+          <div class="topbar-actions"><button id="language-toggle" class="language-toggle" type="button" aria-label="Switch language">العربية</button><a class="docs-link" href="/docs" target="_blank" rel="noreferrer"><span data-i18n="apiDocs">API docs</span> <span aria-hidden="true">↗</span></a></div>
         </header>
 
         <section class="conversation" aria-live="polite">
           <div id="welcome" class="welcome">
-            <div class="eyebrow"><span></span> YOUR LEGAL RESEARCH COMPANION</div>
-            <h1>Clarity begins<br />with the <em>right question.</em></h1>
-            <p class="intro">Explore the Egyptian Civil Code in plain language. Ask in Arabic or English and get an answer grounded in cited articles.</p>
-            <div class="prompt-label">A FEW PLACES TO START</div>
+            <div class="eyebrow"><span class="eyebrow-mark" aria-hidden="true">✳</span><span data-i18n="eyebrow">CITED ANSWERS FROM THE CIVIL CODE</span></div>
+            <h1 data-i18n="headline">Clarity begins<br />with the <em>right question.</em></h1>
+            <p class="intro" data-i18n="intro">Explore the Egyptian Civil Code in plain language. Ask in Arabic or English and get an answer grounded in cited articles.</p>
+            <div class="prompt-label" data-i18n="suggestionLabel">A FEW PLACES TO START</div>
             <div class="suggestions">
-              <button class="suggestion" type="button"><span class="suggestion-icon">⌁</span><span>What makes a contract legally binding?</span><span class="arrow">↗</span></button>
-              <button class="suggestion" type="button"><span class="suggestion-icon">⌂</span><span>ما أثر العقد الصحيح بين الطرفين؟</span><span class="arrow">↗</span></button>
-              <button class="suggestion" type="button"><span class="suggestion-icon">◷</span><span>When can an obligation be terminated?</span><span class="arrow">↗</span></button>
+              <button class="suggestion" type="button"><span class="suggestion-icon">⌁</span><span data-suggestion="0">What makes a contract legally binding?</span><span class="arrow">↗</span></button>
+              <button class="suggestion" type="button"><span class="suggestion-icon">⌂</span><span data-suggestion="1">ما أثر العقد الصحيح بين الطرفين؟</span><span class="arrow">↗</span></button>
+              <button class="suggestion" type="button"><span class="suggestion-icon">◷</span><span data-suggestion="2">When can an obligation be terminated?</span><span class="arrow">↗</span></button>
             </div>
           </div>
           <div id="messages" class="messages"></div>
@@ -51,17 +51,17 @@
 
         <div class="composer-wrap">
           <form id="ask-form" class="composer">
-            <label class="sr-only" for="question">Ask a question about the Egyptian Civil Code</label>
+            <label class="sr-only" for="question" data-i18n="questionLabel">Ask a question about the Egyptian Civil Code</label>
             <textarea id="question" rows="1" maxlength="2000" placeholder="Ask about the Egyptian Civil Code…" required></textarea>
             <div class="composer-footer">
-              <span class="input-hint">Arabic or English <span>·</span> Enter to send</span>
+              <span class="input-hint" data-i18n="inputHint">Arabic or English <span>·</span> Enter to send</span>
               <div class="composer-actions"><span id="char-count">0 / 2000</span><button id="send-button" class="send-button" type="submit" aria-label="Send question"><span>↑</span></button></div>
             </div>
           </form>
-          <p class="disclaimer">Mizan provides legal information, not legal advice. Verify the cited articles for your situation.</p>
+          <p class="disclaimer" data-i18n="disclaimer">Mizan provides legal information, not legal advice. Verify the cited articles for your situation.</p>
         </div>
       </main>
     </div>
-    <script src="/app.js" defer></script>
+    <script src="/app.js?v=20261003-purple" defer></script>
   </body>
 </html>

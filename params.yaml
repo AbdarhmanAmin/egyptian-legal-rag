@@ -4,18 +4,28 @@ processed_data_path: "data/processed/chunks_article_aware.json"
 
 embedding_model: "BAAI/bge-m3"
 
+chunking:
+  chunk_size: 1536
+  overlap: 0
+
 qdrant:
   path: "./qdrant_storage"
   collection_name: "egyptian_civil_code"
 
 retriever:
-  top_k: 7
+  top_k: 3
 
 mlflow:
   tracking_uri: "sqlite:///mlflow.db"
   experiment_name: "egyptian-legal-rag-project2"
 
 generator:
-  model_name: "openai/gpt-oss-120b" 
+  model_name: "qwen/qwen3.8-27b"
+  reasoning_effort: "none"
   temperature: 0.0
-  max_tokens: 2048
+  max_tokens: 900
+
+evaluation:
+  question_limit: 3
+  max_tokens: 500
+  max_retries: 2

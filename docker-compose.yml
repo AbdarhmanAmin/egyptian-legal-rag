@@ -4,12 +4,15 @@ services:
     ports:
       - "8000:8000"
     env_file: .env
+    environment:
+      HF_HOME: /home/mizan/.cache/huggingface
     volumes:
       - ./qdrant_storage:/app/qdrant_storage
-      - "${USERPROFILE}/.cache/huggingface:/root/.cache/huggingface:ro"
+      - "${USERPROFILE}/.cache/huggingface:/home/mizan/.cache/huggingface:ro"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 180s

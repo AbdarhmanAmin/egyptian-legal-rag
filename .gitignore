@@ -1,9 +1,14 @@
 *.egg-info/
 __pycache__/
 .venv/
+
 /mlflow.db
+/mlflow.db.before-evaluation-cleanup.bak
 
 qdrant_storage/
 mlruns/
 
 .env
+
+
+.venv311/

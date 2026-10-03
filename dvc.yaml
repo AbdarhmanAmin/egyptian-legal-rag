@@ -6,6 +6,8 @@ stages:
       - data/raw/القانون المدني المصري.pdf
     outs:
       - data/processed/egyptian_civil_code.json
+    metrics:
+      - reports/corpus_metrics.json
 
   chunking:
     cmd: python -m src.rag.chunking
@@ -17,10 +19,14 @@ stages:
           - raw_data_path
           - processed_data_path
           - embedding_model
+          - chunking.chunk_size
+          - chunking.overlap
           - mlflow.tracking_uri
           - mlflow.experiment_name
     outs:
       - data/processed/chunks_article_aware.json
+    metrics:
+      - reports/chunking_metrics.json
 
   indexing:
     cmd: python -m src.rag.indexing

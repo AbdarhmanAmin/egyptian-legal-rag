@@ -26,10 +26,12 @@ stages:
       size: 1179649
     - path: src/rag/chunking.py
       hash: md5
-      md5: 3b16e09d06e15d32e44978922dbefc20
-      size: 2234
+      md5: 7b453690cc1336ecbe0bb1a163864376
+      size: 4592
     params:
       params.yaml:
+        chunking.chunk_size: 1536
+        chunking.overlap: 0
         embedding_model: BAAI/bge-m3
         mlflow.experiment_name: egyptian-legal-rag-project2
         mlflow.tracking_uri: sqlite:///mlflow.db
@@ -38,15 +40,15 @@ stages:
     outs:
     - path: data/processed/chunks_article_aware.json
       hash: md5
-      md5: 6ff1595d58630137397d8b62cb24a249
-      size: 1738900
+      md5: a33b19afe67574b5edcde106f4983517
+      size: 1813468
   indexing:
     cmd: python -m src.rag.indexing
     deps:
     - path: data/processed/chunks_article_aware.json
       hash: md5
-      md5: 6ff1595d58630137397d8b62cb24a249
-      size: 1738900
+      md5: a33b19afe67574b5edcde106f4983517
+      size: 1813468
     - path: src/rag/indexing.py
       hash: md5
       md5: b904037d2ab5a95137259f4b8e2fa329
@@ -59,6 +61,6 @@ stages:
     outs:
     - path: qdrant_storage
       hash: md5
-      md5: 3e5a10bde049011681122c15f21482ad.dir
-      size: 12689974
+      md5: 52a9fd15a252bd57c7d96e00bdd6c558.dir
+      size: 12833334
       nfiles: 3
